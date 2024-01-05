@@ -1,26 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css'
 import SearchIcon from './search.svg'
+import MovieCard from './MovieCard';
 
 const omdbApiKey = process.env.REACT_APP_OMDB_KEY;
 const API_URL = "http://www.omdbapi.com?apikey=d9498045";
 
-const movie1 = {
-    "Title": "Spiderman",
-    "Year": "1990",
-    "imdbID": "tt0100669",
-    "Type": "movie",
-    "Poster": "N/A"
-}
 
 const App = () => {
+
+    const [movies, setMovies] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
 
     const searchMovies = async (title) => {
         const response = await fetch(`${API_URL}&s=${title}`);
         const data = await response.json();
 
-        console.log(data);
+        console.log(data.Search);
+        setMovies(data.Search)
     };
+
 
     useEffect(() => {
         searchMovies('Spiderman');
@@ -32,30 +31,29 @@ const App = () => {
             <div className='search'>
                 <input
                     placeholder='Search for movies'
-                    value="Superman"
-                    onChange={() => { }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <img
                     src={SearchIcon}
                     alt="search"
-                    onClick={() => { }}
+                    onClick={() => searchMovies(searchTerm)}
                 />
             </div>
 
-            <div className='container'>
-                <div className='movie'>
-                    <div>
-                        <p>{movie1.Year}</p>
+            {
+                movies?.length > 0 ? (
+                    <div className='container'>
+                        {movies.map((movie) => (
+                            <MovieCard movie={movie}  />
+                        ))}
                     </div>
-                    <div>
-                        <img src={movie1.Poster !=='N/A' ? movie1.Poster : 'https://via.placeholder.com/400'} alt={movie1.Title}/>
+                ) : (
+                    <div className='empty'>
+                        <h2>No movies found</h2>
                     </div>
-                    <div>
-                        <span>{movie1.Type}</span>
-                        <h3>{movie1.Title}</h3>
-                    </div>
-                </div>
-            </div>
+                )
+            }
         </div>
     );
 };
